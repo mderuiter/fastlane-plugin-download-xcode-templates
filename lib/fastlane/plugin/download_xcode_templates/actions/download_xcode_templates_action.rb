@@ -1,11 +1,27 @@
 require 'fastlane/action'
+require "fileutils"
+
 require_relative '../helper/download_xcode_templates_helper'
 
 module Fastlane
   module Actions
     class DownloadXcodeTemplatesAction < Action
+
       def self.run(params)
-        UI.message("The download_xcode_templates plugin is working!")
+        repository = params[:repo]
+
+        # Downloading
+        downloadHelper = Helper::DownloadXcodeTemplatesHelper.new()
+        temp_dir = downloadHelper.get_directory(".tmpTemplates")
+        downloadHelper.clean_directory(temp_dir)
+        downloadHelper.clone_repository(repository, temp_dir)
+
+        # Moving
+        downloadHelper.move_templates("File Templates", temp_dir)
+        downloadHelper.move_templates("Project Templates", temp_dir)
+
+        # Cleaning
+        downloadHelper.clean_directory(temp_dir)
       end
 
       def self.description
@@ -21,7 +37,14 @@ module Fastlane
       end
 
       def self.available_options
-        []
+        [
+          FastlaneCore::ConfigItem.new(
+            key: :repo,
+            description: "URL to GIT repository",
+            type: String,
+            optional: false
+          )
+        ]
       end
 
       def self.is_supported?(platform)

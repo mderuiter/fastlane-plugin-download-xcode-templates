@@ -1,3 +1,5 @@
 lane :test do
-  download_xcode_templates
+  download_xcode_templates(
+    repo: "git@github.com:mderuiter/xcode-templates.git"
+  )
 end
